@@ -9,7 +9,7 @@ import threading
 from datetime import datetime
 from satImgDowloader import DL_img
 
-def getSatImg(lat, lon, square=2000, zoom=18):    
+def getSatImg(lat, lon, square=2000, zoom=18, plot_center=False):    
     
     src_file_path = inspect.getfile(lambda: None)
     file_dir = os.path.dirname(src_file_path)
@@ -55,7 +55,17 @@ def getSatImg(lat, lon, square=2000, zoom=18):
 
     img = DL_img(lat1, lon1, lat2, lon2, zoom, prefs['url'],
         prefs['headers'], prefs['tile_size'], channels)
+    
+    if plot_center:
+        middle = int(len(img)/2)
+        r = int(len(img)/20)
 
+        for ep in range(int(0.005*len(img))):
+            for angle in np.arange(0, 2 * np.pi, 1/2/r):
+                x = int((r+ep) * np.cos(angle))
+                y = int((r+ep) * np.sin(angle))
+                img[middle+x,middle+y] = [255]
+    
     name = f'{lat}_{lon}.png'   
     
     cv2.imwrite(os.path.join(prefs['dir'], name), img)
